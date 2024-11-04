@@ -29,23 +29,16 @@ def parse_all_stats(log_file, output_file, location, run_id):
     except Exception as e:
         logging.error(f"Error occurred while parsing the file: {e}")
 
-
 def main():
     parser = argparse.ArgumentParser(description="Parse log file and generate fermi_stat.txt with all stats.")
     parser.add_argument("-l", type=str, required=True, help="Location of the run")
     parser.add_argument("-id", type=str, required=True, help="ID of the run")
     parser.add_argument("-p", action="store_true", required=True, help="Parse the file and create fermi_stat.txt")
-    parser.add_argument("-r", type=str, help="Optional base directory to create the run ID folder")
 
     args = parser.parse_args()
 
-    # Set base directory to the specified path or to the current directory if not provided
-    base_dir = args.r if args.r else "."
-    run_dir = os.path.join(base_dir, args.id)
-    qor_directory = os.path.join(run_dir, "QOR")
-    os.makedirs(qor_directory, exist_ok=True)
-
-    # Define the output file path within the QOR folder
+    # Define the path for fermi_stat.txt inside the existing qor directory
+    qor_directory = os.path.expanduser("~/Documents/PROJECT/9871/qor")
     output_file = os.path.join(qor_directory, "fermi_stat.txt")
 
     if args.p:
@@ -53,8 +46,8 @@ def main():
         dummy_logfile_path = os.path.expanduser("~/Documents/PROJECT/9871/logs/optimization/dummy_logfile.txt")
         parse_all_stats(dummy_logfile_path, output_file, args.l, args.id)
 
-    # Log the completion of folder creation and file parsing
-    logging.info(f"Directory structure created at {run_dir}. QOR folder and fermi_stat.txt file placed successfully.")
+    # Log the completion of file parsing
+    logging.info(f"File parsing completed successfully. fermi_stat.txt created in the existing QOR folder.")
 
 if __name__ == "__main__":
     main()
