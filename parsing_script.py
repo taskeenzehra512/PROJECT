@@ -9,27 +9,26 @@ logging.basicConfig(filename="parse_log.log", level=logging.INFO,
 
 def parse_all_stats(log_file, output_file, location, run_id):
     try:
-        # Dictionary to store parsed results
         results = []
-
-        # Regular expression to capture all lines with key=value format
         pattern = r"(\w+)\s*=\s*([^\n]+)"
 
-        # Read and parse the log file
         with open(log_file, "r") as file:
             content = file.read()
             results = re.findall(pattern, content)
 
-        # Write parsed results to the output file
+        logging.info(f"Number of results parsed: {len(results)}")
+
         with open(output_file, "w") as out_file:
             out_file.write(f"Location: {location}\n")
             out_file.write(f"Run ID: {run_id}\n\n")
             for key, value in results:
                 out_file.write(f"{key}: {value}\n")
 
+        logging.info("fermi_stat.txt written successfully.")
         logging.info(f"Parsing completed successfully for location: {location}, run ID: {run_id}.")
     except Exception as e:
         logging.error(f"Error occurred while parsing the file: {e}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Parse log file and generate fermi_stat.txt with all stats.")
