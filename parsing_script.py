@@ -34,12 +34,12 @@ def main():
     args = parser.parse_args()
 
     # Paths
-    existing_qor_path = os.path.expanduser("~/Documents/PROJECT/9871/qor")
+    existing_qor_path = "/home/emumba/Documents/PROJECT/9871/qor"
 
     if args.r:
         # Create the new folder named <run_id>_r in ~/Documents/PROJECT
         run_id_folder = f"{args.id}_r"
-        run_dir = os.path.join(os.path.expanduser("~/Documents/PROJECT"), run_id_folder)
+        run_dir = os.path.join("/home/emumba/Documents/PROJECT", run_id_folder)
         
         # Create the run ID directory and copy the existing qor folder into it
         os.makedirs(run_dir, exist_ok=True)
@@ -50,7 +50,7 @@ def main():
 
     if args.p:
         # Specify the full path to the dummy_logfile.txt
-        dummy_logfile_path = os.path.expanduser("~/Documents/PROJECT/9871/logs/optimization/dummy_logfile.txt")
+        dummy_logfile_path = "/home/emumba/Documents/PROJECT/9871/logs/optimization/dummy_logfile.txt"
         parse_all_stats(dummy_logfile_path, args.l, args.id)
 
     # Log the completion of file parsing or directory creation
