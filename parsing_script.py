@@ -50,11 +50,12 @@ def main():
     output_file = os.path.join(qor_directory, "fermi_stat.txt")
 
     if args.p:
-        parse_all_stats("dummy_logfile.txt", output_file, args.l, args.id)
+        # Specify the full path to the dummy_logfile.txt
+        dummy_logfile_path = os.path.expanduser("~/Documents/PROJECT/9871/logs/optimization/dummy_logfile.txt")
+        parse_all_stats(dummy_logfile_path, output_file, args.l, args.id)
 
     # Log the completion of folder creation and file parsing
     logging.info(f"Directory structure created at {run_dir}. QOR folder and fermi_stat.txt file placed successfully.")
 
 if __name__ == "__main__":
     main()
-
