@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Define the database URL with the correct credentials
@@ -15,8 +15,9 @@ Base = declarative_base()
 class Fermi(Base):
     __tablename__ = 'fermi'
     
-    run_id = Column(Integer, primary_key=True, nullable=False)  # Set run_id as primary key
-    stat_name = Column(String(100), nullable=False)  # No longer a primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)  # New primary key with autoincrement
+    run_id = Column(Integer, nullable=False)  # No longer a primary key
+    stat_name = Column(String(100), nullable=False)
     stat_value = Column(String(100), nullable=False)
 
 # Create the table if it doesn't exist
@@ -25,9 +26,16 @@ Base.metadata.create_all(engine)
 # Function to read fermi_stat.txt and save to the database
 def save_statistics_to_db(file_path, run_id):
     try:
+        # Create a session
+        session = Session()
+        
         # Clear the existing data in the fermi table
         session.query(Fermi).delete()
         session.commit()  # Commit the deletion
+
+        # Reset the auto-increment value
+        session.execute(text("ALTER TABLE fermi AUTO_INCREMENT = 1;"))
+        session.commit()  # Commit the alteration
 
         with open(file_path, 'r') as file:
             for line in file:
@@ -49,13 +57,13 @@ def save_statistics_to_db(file_path, run_id):
             print(f"Committed {session.new} new records to the database.")
     except Exception as e:
         print(f"An error occurred while saving to the database: {e}")
+    finally:
+        # Close the session
+        session.close()
 
 # Path to the fermi_stat.txt file
 file_path = "/home/emumba/Documents/PROJECT/9871/qor/fermi_stat.txt"
 run_id = 9871  # Set run_id to 9871
-
-# Create a session
-session = Session()
 
 # Check the database connection
 try:
@@ -67,6 +75,3 @@ except Exception as e:
 
 # Call the function to save statistics to the database
 save_statistics_to_db(file_path, run_id)
-
-# Close the session
-session.close()
