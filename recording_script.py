@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Define the database URL with the correct credentials
-DATABASE_URL = "mysql+mysqlconnector://d2s:D2s_1234!@localhost/emumba-qor"
+DATABASE_URL = "mysql+mysqlconnector://d2s:D2s_1234!@localhost/emumba_qor"
 
 # Set up the database connection
 engine = create_engine(DATABASE_URL)
