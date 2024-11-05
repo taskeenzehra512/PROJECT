@@ -28,7 +28,7 @@ def main():
     parser = argparse.ArgumentParser(description="Parse log file and handle qor directory.")
     parser.add_argument("-l", type=str, required=True, help="Location of the run")
     parser.add_argument("-id", type=str, required=True, help="ID of the run")
-    parser.add_argument("-p", action="store_true", help="Parse the file and generate stats")
+    parser.add_argument("-p", type=str, required=True, help="Parse the file and generate stats (mandatory)")
     parser.add_argument("-r", action="store_true", help="Create rsync folder with qor copied")
 
     args = parser.parse_args()
@@ -48,10 +48,9 @@ def main():
 
         logging.info(f"Copied qor folder to {qor_directory} for run ID: {args.id}")
 
-    if args.p:
-        # Specify the full path to the dummy_logfile.txt
-        dummy_logfile_path = "/home/emumba/Documents/PROJECT/9871/logs/optimization/dummy_logfile.txt"
-        parse_all_stats(dummy_logfile_path, args.l, args.id)
+    # Specify the full path to the dummy_logfile.txt
+    dummy_logfile_path = "/home/emumba/Documents/PROJECT/9871/logs/optimization/dummy_logfile.txt"
+    parse_all_stats(dummy_logfile_path, args.l, args.id)
 
     # Log the completion of file parsing or directory creation
     if args.r:
