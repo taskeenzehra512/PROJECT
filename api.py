@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template_string
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from recording_script import Fermi  # Importing the Fermi class from recording_script.py
 
 app = Flask(__name__)
 
@@ -20,85 +19,79 @@ HTML_TEMPLATE = '''
     <title>Statistics Query</title>
     <style>
         table {
-            width: 100%; /* Make the table full width */
-            border-collapse: collapse; /* Merge table borders */
+            width: 100%;
+            border-collapse: collapse;
         }
         table, th, td {
-            border: 1px solid black; /* Add borders to the table, headers, and cells */
+            border: 1px solid black;
         }
         th, td {
-            padding: 8px; /* Add padding to table headers and cells */
-            text-align: left; /* Align text to the left */
+            padding: 8px;
+            text-align: left;
         }
     </style>
 </head>
 <body>
     <h1>Get Statistics by Run ID</h1>
-    <form action="/api/statistics" method="post">
+    <form action="/" method="post">
         <label for="run_id">Run ID:</label>
-        <input type="number" id="run_id" name="run_id" required> <!-- Input field for run_id -->
-        <input type="submit" value="Submit"> <!-- Submit button -->
+        <input type="number" id="run_id" name="run_id" required>
+        <input type="submit" value="Submit">
     </form>
-    <div id="results">
-        {{ results|safe }} <!-- Display results message if applicable -->
-    </div>
-    {% if all_records %}
-    <h2>Statistics for Run ID: {{ run_id }}</h2>
-  <table>
-    <thead>
-        <tr>
-            <th>Run ID</th>
-            <th>Stat Name</th>
-            <th>Stat Value</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for record in all_records %}
-            <tr>
-                <td>{{ record.run_id }}</td>
-                <td>{{ record.stat_name }}</td>
-                <td>{{ record.stat_value }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
 
-    {% else %}
-    <p>No records found for the specified Run ID.</p> <!-- Message if no records found -->
+    {% if run_id is not none %}
+        {% if all_records %}
+            <h2>Statistics for Run ID: {{ run_id }}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Run ID</th>
+                        <th>Stat Name</th>
+                        <th>Stat Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in all_records %}
+                        <tr>
+                            <td>{{ record[0] }}</td>
+                            <td>{{ record[1] }}</td>
+                            <td>{{ record[2] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No records found for the specified Run ID.</p>
+        {% endif %}
     {% endif %}
 </body>
 </html>
 '''
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    # Render the home page with an empty results section and no records
-    return render_template_string(HTML_TEMPLATE, results='', all_records=[], run_id='')
-
-@app.route('/api/statistics', methods=['POST'])
-def get_statistics():
-    # Get the run_id from the form data
-    run_id = request.form.get('run_id', type=int)
     session = Session()  # Create a new session for database interaction
-    results = ''  # Initialize results message
     all_records = []  # Initialize list to hold all records for the run_id
-    try:
-        # Query the Fermi table for all records with the specified run_id
-        all_records = session.query(Fermi).filter_by(run_id=run_id).all()
-        
-        # Debugging statement to check the number of records fetched
-        print(f"Number of records fetched for run_id {run_id}: {len(all_records)}")
-        
-        if not all_records:
-            results = "No records found for the given run_id."  # Update results if no records found
-    except Exception as e:
-        results = f"An error occurred: {str(e)}"  # Capture any exceptions
-    finally:
-        session.close()  # Ensure the session is closed to release resources
-    
-    # Render the HTML template with results, all records, and the run_id
-    return render_template_string(HTML_TEMPLATE, results=results, all_records=all_records, run_id=run_id)
+    run_id = None  # Initialize run_id to be used in the template
 
+    if request.method == 'POST':
+        run_id = request.form.get('run_id', type=int)
+        if run_id is not None:  # Check if run_id is provided
+            try:
+                # Fetch records directly from the database
+                query = text("SELECT run_id, stat_name, stat_value FROM fermi WHERE run_id = :run_id")
+                result = session.execute(query, {'run_id': run_id})
+                all_records = result.fetchall()  # Fetch all results as a list of tuples
+                
+                # Debugging statement to check the number of records fetched
+                print(f"Number of records fetched for run_id {run_id}: {len(all_records)}")
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
+    
+    session.close()  # Ensure the session is closed
+
+    # Render the HTML template with results and all records
+    return render_template_string(HTML_TEMPLATE, all_records=all_records, run_id=run_id)
 
 if __name__ == '__main__':
     # Run the Flask application in debug mode
