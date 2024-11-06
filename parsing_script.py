@@ -5,58 +5,90 @@ import shutil
 import logging
 
 # Set up logging
-logging.basicConfig(filename="parse_log.log", level=logging.INFO,
+logging.basicConfig(filename="parse_log.log", level=logging.INFO, 
                     format="%(asctime)s - %(levelname)s - %(message)s")
+
+def format_parsed_data(results):
+    formatted_sections = []
+
+    # Define all categories and their start and end keys
+    categories = {
+        "Main_Stats": {
+            "start": "fermi_job_id", "end": "parsing_time"
+        },
+        "Runtime_Analysis_Stats": {
+            "start": "target_prep_runtime", "end": "the_checker_runtime"
+        },
+        "Geometric_Analysis_Stats_Fermi": {
+            "start": "mean_fermi", "end": "marker_y_fermi"
+        },
+        "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Negfocus": {
+            "start": "design_size", "end": "run_date_time"
+        },
+        "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Negdose": {
+            "start": "mean_fermi", "end": "marker_y_fermi"
+        },
+        "Statistical_Analysis:EPE_Target_vs_Nominal_Mask_Simulation_f0d0": {
+            "start": "high_curvature_internal_checking_count", "end": "xor_error_of_positive_defocus_greater_than_15_marker_y"
+        },
+        "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Posfocus": {
+            "start": "mean_fermi", "end": "marker_y_fermi"
+        },
+        "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Posdose": {
+            "start": "mrc_area_count", "end": "high_curvature_external_checking_marker_y"
+        },
+        "Statistical_Analysis:Width_of_PV_Band_by_Dose": {
+            "start": "mean_fermi", "end": "target_file_size"
+        },
+        "Statistical_Analysis:Width_of_PV_Band_by_Focus": {
+            "start": "machine_name", "end": "marker_y_fermi"
+        }
+    }
+
+    # Loop through each category and find matching key-value pairs between start and end
+    for section, bounds in categories.items():
+        start_key, end_key = bounds["start"], bounds["end"]
+        section_data = {}
+
+        # Find the index of start and end keys in the parsed results
+        start_index = None
+        end_index = None
+        for i, (key, value) in enumerate(results):
+            if key == start_key:
+                start_index = i
+            if key == end_key:
+                end_index = i
+
+        # If we found both start and end, extract the relevant section
+        if start_index is not None and end_index is not None:
+            section_data = dict(results[start_index:end_index + 1])
+            formatted_section = f"[{section}]"
+            for key, value in section_data.items():
+                formatted_section += f"\n{key} = {value}"
+
+            formatted_sections.append(formatted_section)
+
+    return "\n\n".join(formatted_sections)
 
 def parse_all_stats(log_file, location, run_id):
     try:
-        # Define the patterns for extracting relevant stats and sections
-        patterns = {
-            "Main_Stats": r"fermi_job_id = 9871[\s\S]*?parsing_time = False",
-            "Runtime_Analysis_Stats": r"target_prep_runtime = None[\s\S]*?the_checker_runtime = None",
-            "Geometric_Analysis_Stats_Fermi": r"the_checker_runtime = None[\s\S]*?marker_y_fermi = \d+(\.\d+)?",
-            "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Negfocus": r"design_size = \d+(\.\d+)? x \d+(\.\d+)?[\s\S]*?run_date_time = \d+-\d+-\d+ \d+:\d+:\d+",
-            "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Negdose": r"mean_fermi = \d+(\.\d+)?[\s\S]*?marker_y_fermi = \d+(\.\d+)?",
-            "Statistical_Analysis:EPE_Target_vs_Nominal_Mask_Simulation_f0d0": r"high_curvature_internal_checking_count = \d+[\s\S]*?xor_error_of_positive_defocus_greater_than_15_marker_y = \d+",
-            "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Posfocus": r"mean_fermi = -?\d+(\.\d+)?[\s\S]*?marker_y_fermi = \d+(\.\d+)?",
-            "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Posdose": r"mrc_area_count = \d+[\s\S]*?high_curvature_external_checking_marker_y = \d+",
-            "Statistical_Analysis:Width_of_PV_Band_by_Dose": r"mean_fermi = -?\d+(\.\d+)?[\s\S]*?target_file_size = \d+(\.\d+)?",
-            "Statistical_Analysis:Width_of_PV_Band_by_Focus": r"machine_name = \w+[\s\S]*?marker_y_fermi = \d+(\.\d+)?"
-        }
+        results = []
+        pattern = r"(\w+)\s*=\s*([^\n]+)"
 
-        # Open the log file
         with open(log_file, "r") as file:
             content = file.read()
+            results = re.findall(pattern, content)
 
-        results = []
+        # Format the parsed results
+        formatted_data = format_parsed_data(results)
 
-        for section, pattern in patterns.items():
-            # Find the section using the defined pattern
-            section_data = re.search(pattern, content)
+        # Write to fermi_stat.txt
+        output_file = "/home/emumba/Documents/PROJECT/9871/qor/fermi_stat.txt"
+        with open(output_file, "w") as f:
+            f.write(formatted_data)
 
-            if section_data:
-                # Extract and process the key-value pairs in the section
-                section_content = section_data.group(0)
-                lines = section_content.strip().splitlines()
-
-                # Start writing the section header
-                results.append(f"[{section}]")
-                
-                # Process each line as a key-value pair
-                for line in lines:
-                    if "=" in line:
-                        results.append(line.strip())
-
-                results.append("")  # Add a blank line between sections
-
-        # Write the results to fermi_stat.txt
-        fermi_stat_path = "/home/emumba/Documents/PROJECT/9871/qor/fermi_stat.txt"
-        with open(fermi_stat_path, "w") as fermi_file:
-            for line in results:
-                fermi_file.write(line + "\n")
-
-        logging.info(f"Parsed and saved statistics to {fermi_stat_path} for location: {location}, run ID: {run_id}.")
-    
+        logging.info(f"Number of results parsed: {len(results)}")
+        logging.info(f"Data written to {output_file} successfully for run ID: {run_id}.")
     except Exception as e:
         logging.error(f"Error occurred while parsing the file: {e}")
 
