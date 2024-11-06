@@ -29,9 +29,9 @@ def save_statistics_to_db(file_path, run_id):
         # Create a session
         session = Session()
         
-        # Clear the existing data in the fermi table
-        session.query(Fermi).delete()
+        session.query(Fermi).filter(Fermi.run_id == run_id).delete()
         session.commit()  # Commit the deletion
+
 
         # Reset the auto-increment value
         session.execute(text("ALTER TABLE fermi AUTO_INCREMENT = 1;"))
