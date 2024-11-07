@@ -1,98 +1,62 @@
-import argparse
 import os
-import re
 import shutil
 import logging
+import argparse
 
-# Set up logging
-logging.basicConfig(filename="parse_log.log", level=logging.INFO, 
-                    format="%(asctime)s - %(levelname)s - %(message)s")
 
-def format_parsed_data(results):
-    formatted_sections = []
 
-    # Define all categories and their start and end keys
-    categories = {
-        "Main_Stats": {
-            "start": "fermi_job_id", "end": "parsing_time"
-        },
-        "Runtime_Analysis_Stats": {
-            "start": "target_prep_runtime", "end": "the_checker_runtime"
-        },
-        "Geometric_Analysis_Stats_Fermi": {
-            "start": "mean_fermi", "end": "marker_y_fermi"
-        },
-        "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Negfocus": {
-            "start": "design_size", "end": "run_date_time"
-        },
-        "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Negdose": {
-            "start": "mean_fermi", "end": "marker_y_fermi"
-        },
-        "Statistical_Analysis:EPE_Target_vs_Nominal_Mask_Simulation_f0d0": {
-            "start": "high_curvature_internal_checking_count", "end": "xor_error_of_positive_defocus_greater_than_15_marker_y"
-        },
-        "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Posfocus": {
-            "start": "mean_fermi", "end": "marker_y_fermi"
-        },
-        "Statistical_Analysis:EPE_Target_vs_Mask_Simulation_Posdose": {
-            "start": "mrc_area_count", "end": "high_curvature_external_checking_marker_y"
-        },
-        "Statistical_Analysis:Width_of_PV_Band_by_Dose": {
-            "start": "mean_fermi", "end": "target_file_size"
-        },
-        "Statistical_Analysis:Width_of_PV_Band_by_Focus": {
-            "start": "machine_name", "end": "marker_y_fermi"
-        }
-    }
-
-    # Loop through each category and find matching key-value pairs between start and end
-    for section, bounds in categories.items():
-        start_key, end_key = bounds["start"], bounds["end"]
-        section_data = {}
-
-        # Find the index of start and end keys in the parsed results
-        start_index = None
-        end_index = None
-        for i, (key, value) in enumerate(results):
-            if key == start_key:
-                start_index = i
-            if key == end_key:
-                end_index = i
-
-        # If we found both start and end, extract the relevant section
-        if start_index is not None and end_index is not None:
-            section_data = dict(results[start_index:end_index + 1])
-            formatted_section = f"[{section}]"
-            for key, value in section_data.items():
-                formatted_section += f"\n{key} = {value}"
-
-            formatted_sections.append(formatted_section)
-
-    return "\n\n".join(formatted_sections)
-
-def parse_all_stats(log_file, location, run_id):
-    try:
-        results = []
-        pattern = r"(\w+)\s*=\s*([^\n]+)"
-
-        with open(log_file, "r") as file:
-            content = file.read()
-            results = re.findall(pattern, content)
-
-        # Format the parsed results
-        formatted_data = format_parsed_data(results)
-
-        # Write to fermi_stat.txt
-        output_file = "/home/emumba/Documents/PROJECT/9871/qor/fermi_stat.txt"
-        with open(output_file, "w") as f:
-            f.write(formatted_data)
-
-        logging.info(f"Number of results parsed: {len(results)}")
-        logging.info(f"Data written to {output_file} successfully for run ID: {run_id}.")
-    except Exception as e:
-        logging.error(f"Error occurred while parsing the file: {e}")
+# Set up logging to write to a file
+logging.basicConfig(
+    filename='/home/emumba/Documents/PROJECT/parse.log',  # Log file path
+    level=logging.INFO,  # Log level (INFO will log info, warnings, errors, etc.)
+    format='%(asctime)s - %(levelname)s - %(message)s'  # Log message format
+)
+# Function to parse and organize stats
+def organize_stats(template_file, data_file, output_file):
+    # Read the template file to extract category structure
+    with open(template_file, 'r') as template:
+        template_lines = template.readlines()
+    
+    # Read the random data file to get the unordered stats
+    with open(data_file, 'r') as data:
+        data_lines = data.readlines()
+    
+    # Initialize variable to hold the organized data
+    organized_data = ""
+    current_category = ""
+    
+    for line in template_lines:
+        stripped_line = line.strip()
+        
+        # Check if the line is a category header (e.g., "[Main_Stats]")
+        if stripped_line.startswith("[") and stripped_line.endswith("]"):
+            current_category = stripped_line
+            organized_data += f"{current_category}\n"
+        # Check if the line is a field line (e.g., "speed:")
+        elif stripped_line:
+            field_name = stripped_line.split(":")[0].strip()
+            # Find matching field in the random data file
+            matched = False
+            for data_line in data_lines:
+                if data_line.startswith(field_name):
+                    organized_data += data_line
+                    matched = True
+                    break
+            # If the field name is not found in the data, add an empty line or a default value
+            if not matched:
+                organized_data += f"{field_name}: None\n"
+        else:
+            organized_data += "\n"
+    
+    # Write the organized data to the output file
+    with open(output_file, 'w') as output:
+        output.write(organized_data)
 
 def main():
+    # Set up logging configuration
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Parse log file and handle qor directory.")
     parser.add_argument("-l", type=str, required=True, help="Location of the run")
     parser.add_argument("-id", type=str, required=True, help="ID of the run")
@@ -118,7 +82,13 @@ def main():
 
     # Specify the full path to the dummy_logfile.txt
     dummy_logfile_path = "/home/emumba/Documents/PROJECT/9871/logs/optimization/dummy_logfile.txt"
-    parse_all_stats(dummy_logfile_path, args.l, args.id)
+    
+    # Specify the template file path and output file path
+    template_file = '/home/emumba/Documents/PROJECT/9871/qor/Fermi_stats.txt'
+    output_file = f"/home/emumba/Documents/PROJECT/9871/qor/organized_stats_{args.id}.txt"  # Output file with run_id
+
+    # Call the function to parse and organize stats
+    organize_stats(template_file, dummy_logfile_path, output_file)
 
     # Log the completion of file parsing or directory creation
     if args.r:
