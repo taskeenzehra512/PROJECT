@@ -3,14 +3,13 @@ import shutil
 import logging
 import argparse
 
-
-
 # Set up logging to write to a file
 logging.basicConfig(
     filename='/home/emumba/Documents/PROJECT/parse.log',  # Log file path
     level=logging.INFO,  # Log level (INFO will log info, warnings, errors, etc.)
     format='%(asctime)s - %(levelname)s - %(message)s'  # Log message format
 )
+
 # Function to parse and organize stats
 def organize_stats(template_file, data_file, output_file):
     # Read the template file to extract category structure
@@ -34,7 +33,7 @@ def organize_stats(template_file, data_file, output_file):
             organized_data += f"{current_category}\n"
         # Check if the line is a field line (e.g., "speed:")
         elif stripped_line:
-            field_name = stripped_line.split(":")[0].strip()
+            field_name = stripped_line.split("=")[0].strip()
             # Find matching field in the random data file
             matched = False
             for data_line in data_lines:
@@ -42,9 +41,9 @@ def organize_stats(template_file, data_file, output_file):
                     organized_data += data_line
                     matched = True
                     break
-            # If the field name is not found in the data, add an empty line 
+            # Skip the field if it is not found in the data
             if not matched:
-                organized_data += f"{field_name}: None\n"
+                continue
         else:
             organized_data += "\n"
     
