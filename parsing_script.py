@@ -42,7 +42,7 @@ def organize_stats(template_file, data_file, output_file):
                     organized_data += data_line
                     matched = True
                     break
-            # If the field name is not found in the data, add an empty line or a default value
+            # If the field name is not found in the data, add an empty line 
             if not matched:
                 organized_data += f"{field_name}: None\n"
         else:
