@@ -1,6 +1,6 @@
 import os
 import re
-from sqlalchemy import create_engine, Column, Integer, String, MetaData, Table, delete
+from sqlalchemy import create_engine, Column, Integer, String, MetaData, Table, delete, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 import logging
@@ -169,12 +169,39 @@ def parse_and_record_data(file_path, run_id):
     session.commit()
     logging.info(f"Data recorded successfully for run_id: {run_id}")
 
+
+def reset_auto_increment():
+    """Reset auto-increment for each table."""
+    tables = [
+        MainStats, RuntimeAnalysisStats, GeometricAnalysisStatsFermi,
+        Statistical_AnalysisEPETargetvsMaskSimulationNegdose,
+        Statistical_AnalysisEPETargetvsMaskSimulationNegfocus,
+        Statistical_AnalysisEPETargetvsMaskSimulationPosdose,
+        Statistical_AnalysisEPETargetvsMaskSimulationPosfocus,
+        Statistical_AnalysisEPETargetvsNominalMaskSimulationf0d0,
+        Statistical_AnalysisWidthofPVBandbyDose,
+        Statistical_AnalysisWidthofPVBandbyFocus
+    ]
+    
+    # Clear the table before resetting auto-increment
+    for table in tables:
+        # Delete all rows before resetting auto-increment
+        session.execute(delete(table))
+        session.commit()  # Commit after clearing the table
+        
+        # Reset the auto-increment counter
+        session.execute(text(f"ALTER TABLE {table.__tablename__} AUTO_INCREMENT = 1;"))
+        session.commit()  # Commit after resetting auto-increment
+
+    
 # Define the path for the organized stats file
 run_id = "9871"  # Change as required
 organized_stats_file = f"/home/emumba/Documents/PROJECT/9871/qor/organized_stats_{run_id}.txt"
 
+
+reset_auto_increment()
 # Call the function to parse and record data
 parse_and_record_data(organized_stats_file, run_id)
-session.commit()
+
 # Close session
 session.close()
