@@ -19,6 +19,8 @@ class MainStats(Base):
     __tablename__ = 'Main_Stats'
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
@@ -26,6 +28,8 @@ class RuntimeAnalysisStats(Base):
     __tablename__ = 'Runtime_Analysis_Stats'
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
@@ -33,6 +37,8 @@ class GeometricAnalysisStatsFermi(Base):
     __tablename__ = 'Geometric_Analysis_Stats_Fermi'
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
@@ -41,6 +47,8 @@ class Statistical_AnalysisEPETargetvsMaskSimulationNegdose(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)  # Unique identifier for each entry
     run_id = Column(String(50), nullable=False)  # To store the run ID
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)  # Name of the statistic
     stats_value = Column(String(100), nullable=False)  # Value of the statistic
 
@@ -49,6 +57,8 @@ class Statistical_AnalysisEPETargetvsMaskSimulationNegfocus(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
@@ -57,6 +67,8 @@ class Statistical_AnalysisEPETargetvsMaskSimulationPosdose(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
@@ -65,6 +77,8 @@ class Statistical_AnalysisEPETargetvsMaskSimulationPosfocus(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
@@ -73,6 +87,8 @@ class Statistical_AnalysisEPETargetvsNominalMaskSimulationf0d0(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
@@ -81,6 +97,8 @@ class Statistical_AnalysisWidthofPVBandbyDose(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
@@ -89,11 +107,12 @@ class Statistical_AnalysisWidthofPVBandbyFocus(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(50), nullable=False)
+    run_name = Column(String(100), nullable=False)  # New column
+    revision_commit = Column(String(100), nullable=False)  # New column
     stats_name = Column(String(100), nullable=False)
     stats_value = Column(String(100), nullable=False)
 
-# Create tables if they don't exist
-Base.metadata.create_all(engine)
+
 
 # Logging setup
 logging.basicConfig(
@@ -102,7 +121,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-def parse_and_record_data(file_path, run_id):
+def parse_and_record_data(file_path, run_id, run_name, revision_commit):
     """Parse organized stats and record them to the database."""
     
     # Check if the file exists
@@ -162,7 +181,9 @@ def parse_and_record_data(file_path, run_id):
             if current_table and "=" in line:
                 stats_name, stats_value = map(str.strip, line.split("=", 1))
                 # Insert data into the relevant table
-                new_entry = current_table(run_id=run_id, stats_name=stats_name, stats_value=stats_value)
+                new_entry = current_table(run_id=run_id, run_name=run_name, revision_commit=revision_commit, stats_name=stats_name, stats_value=stats_value)
+                session.add(new_entry)
+
                 session.add(new_entry)
 
     # Commit changes to the database
@@ -196,12 +217,14 @@ def reset_auto_increment():
     
 # Define the path for the organized stats file
 run_id = "9871"  # Change as required
+run_name = "abc"  # Set the run name
+revision_commit = "123xyz"  # Set the revision commit
 organized_stats_file = f"/home/emumba/Documents/PROJECT/9871/qor/organized_stats_{run_id}.txt"
 
 
 reset_auto_increment()
 # Call the function to parse and record data
-parse_and_record_data(organized_stats_file, run_id)
+parse_and_record_data(organized_stats_file, run_id, run_name, revision_commit)
 
 # Close session
 session.close()
