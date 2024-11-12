@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 app = Flask(__name__)
 
 # Set up the database connection using SQLAlchemy
-DATABASE_URL = "mysql+mysqlconnector://d2s:D2s_1234!@localhost/emumba_qor"
+DATABASE_URL = "mysql+pymysql://d2s:D2s_1234!@localhost/emumba_qor"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
@@ -32,10 +32,17 @@ HTML_TEMPLATE = '''
     </style>
 </head>
 <body>
-    <h1>Get Statistics by Run ID</h1>
+    <h1>Get Statistics</h1>
     <form action="/" method="post">
         <label for="run_id">Run ID:</label>
         <input type="number" id="run_id" name="run_id" required>
+        <br>
+        <label for="run_name">Run Name:</label>
+        <input type="text" id="run_name" name="run_name" required>
+        <br>
+        <label for="revision_commit">Revision Commit:</label>
+        <input type="text" id="revision_commit" name="revision_commit" required>
+        <br>
         <input type="submit" value="Submit">
     </form>
 
@@ -46,6 +53,8 @@ HTML_TEMPLATE = '''
                 <thead>
                     <tr>
                         <th>Run ID</th>
+                        <th>Run Name</th>
+                        <th>Revision Commit</th>
                         <th>Stat Name</th>
                         <th>Stat Value</th>
                     </tr>
@@ -56,12 +65,14 @@ HTML_TEMPLATE = '''
                             <td>{{ record[0] }}</td>
                             <td>{{ record[1] }}</td>
                             <td>{{ record[2] }}</td>
+                            <td>{{ record[3] }}</td>
+                            <td>{{ record[4] }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <p>No records found for the specified Run ID.</p>
+            <p>No records found for the specified parameters.</p>
         {% endif %}
     {% endif %}
 </body>
@@ -71,16 +82,27 @@ HTML_TEMPLATE = '''
 @app.route('/', methods=['GET', 'POST'])
 def home():
     session = Session()  # Create a new session for database interaction
-    all_records = []  # Initialize list to hold all records for the run_id
+    all_records = []  # Initialize list to hold all records
     run_id = None  # Initialize run_id to be used in the template
-
+    run_name = None
+    revision_commit = None
     if request.method == 'POST':
         run_id = request.form.get('run_id', type=int)
-        if run_id is not None:  # Check if run_id is provided
+        run_name = request.form.get('run_name', type=str)
+        revision_commit = request.form.get('revision_commit', type=str)
+        
+        if run_id and run_name and revision_commit:  # Ensure all parameters are provided
             try:
-                # Fetch records directly from the database
-                query = text("SELECT run_id, stat_name, stat_value FROM fermi WHERE run_id = :run_id")
-                result = session.execute(query, {'run_id': run_id})
+                # Fetch records using inner join with the tables
+                query = text("""
+                    SELECT ms.run_id, ms.run_name, ms.revision_commit, ms.stats_name, ms.stats_value
+                    FROM Main_Stats ms
+                    INNER JOIN Runtime_Analysis_Stats ras ON ms.run_id = ras.run_id
+                    WHERE ms.run_id = :run_id
+                    AND ms.run_name = :run_name
+                    AND ms.revision_commit = :revision_commit
+                """)
+                result = session.execute(query, {'run_id': run_id, 'run_name': run_name, 'revision_commit': revision_commit})
                 all_records = result.fetchall()  # Fetch all results as a list of tuples
                 
                 # Debugging statement to check the number of records fetched
