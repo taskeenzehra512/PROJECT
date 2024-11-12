@@ -219,7 +219,7 @@ def reset_auto_increment():
 run_id = "9871"  # Change as required
 run_name = "abc"  # Set the run name
 revision_commit = "123xyz"  # Set the revision commit
-organized_stats_file = f"/home/emumba/Documents/PROJECT/9871/qor/organized_stats_{run_id}.txt"
+organized_stats_file = f"/home/emumba/Documents/PROJECT/rsync/9871/qor/organized_stats_{run_id}.txt"
 
 
 reset_auto_increment()
