@@ -68,13 +68,18 @@ def main():
     existing_qor_path = "/home/emumba/Documents/PROJECT/9871/qor"
 
     if args.r:
-        # Create the new folder named <run_id>_r in ~/Documents/PROJECT
-        run_id_folder = f"{args.id}_r"
-        run_dir = os.path.join("/home/emumba/Documents/PROJECT", run_id_folder)
+        # Define the rsync directory and specific run_id directory
+        rsync_dir = os.path.join("/home/emumba/Documents/PROJECT", "rsync")
+        run_id_folder = str(args.id)  # Folder named with the run_id
+        run_dir = os.path.join(rsync_dir, run_id_folder)
         
-        # Create the run ID directory and copy the existing qor folder into it
+        # Create the rsync and run_id directories if they don't exist
         os.makedirs(run_dir, exist_ok=True)
+
+        # Define the qor directory path inside the run_id folder
         qor_directory = os.path.join(run_dir, "qor")
+        
+        # Copy the existing qor folder into the run_id/qor path
         shutil.copytree(existing_qor_path, qor_directory, dirs_exist_ok=True)
 
         logging.info(f"Copied qor folder to {qor_directory} for run ID: {args.id}")
