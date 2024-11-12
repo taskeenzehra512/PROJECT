@@ -1,120 +1,108 @@
-from flask import Flask, request, render_template_string
-from sqlalchemy import create_engine, text
+from flask import Flask, render_template, request
+from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session
+from sqlalchemy import select
 
 app = Flask(__name__)
 
-# Set up the database connection using SQLAlchemy
-DATABASE_URL = "mysql+pymysql://d2s:D2s_1234!@localhost/emumba_qor"
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
+# MySQL Database URI
+DATABASE_URI = 'mysql+pymysql://d2s:D2s_1234!@localhost/emumba_qor'
 
-# HTML Template for the form and the data table
-HTML_TEMPLATE = '''
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistics Query</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-    <h1>Get Statistics</h1>
-    <form action="/" method="post">
-        <label for="run_id">Run ID:</label>
-        <input type="number" id="run_id" name="run_id" required>
-        <br>
-        <label for="run_name">Run Name:</label>
-        <input type="text" id="run_name" name="run_name" required>
-        <br>
-        <label for="revision_commit">Revision Commit:</label>
-        <input type="text" id="revision_commit" name="revision_commit" required>
-        <br>
-        <input type="submit" value="Submit">
-    </form>
+# Create engine to connect to MySQL database
+engine = create_engine(DATABASE_URI, echo=True)
 
-    {% if run_id is not none %}
-        {% if all_records %}
-            <h2>Statistics for Run ID: {{ run_id }}</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Run ID</th>
-                        <th>Run Name</th>
-                        <th>Revision Commit</th>
-                        <th>Stat Name</th>
-                        <th>Stat Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for record in all_records %}
-                        <tr>
-                            <td>{{ record[0] }}</td>
-                            <td>{{ record[1] }}</td>
-                            <td>{{ record[2] }}</td>
-                            <td>{{ record[3] }}</td>
-                            <td>{{ record[4] }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No records found for the specified parameters.</p>
-        {% endif %}
-    {% endif %}
-</body>
-</html>
-'''
+# Set up sessionmaker to manage database sessions
+SessionFactory = sessionmaker(bind=engine)
+Session = scoped_session(SessionFactory)
+
+# Base class for models
+Base = declarative_base()
+
+# Define Models to Map MySQL Tables
+class Geometric_Analysis_Stats_Fermi(Base):
+    __tablename__ = 'Geometric_Analysis_Stats_Fermi'  # Name of the table in MySQL
+    id = Column(Integer, primary_key=True, autoincrement=True)  # Primary key column
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))  # Adjust length as needed
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
+
+class Main_Stats(Base):
+    __tablename__ = 'Main_Stats'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))  # Adjust length as needed
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
+
+class Mask_Simulation_Negdose(Base):
+    __tablename__ = 'Mask_Simulation_Negdose'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))  # Adjust length as needed
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
+
+class Mask_Simulation_Negfocus(Base):
+    __tablename__ = 'Mask_Simulation_Negfocus'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))  # Adjust length as needed
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
+
+# Define more models for the remaining tables...
 
 @app.route('/', methods=['GET', 'POST'])
-def home():
-    session = Session()  # Create a new session for database interaction
-    all_records = []  # Initialize list to hold all records
-    run_id = None  # Initialize run_id to be used in the template
-    run_name = None
-    revision_commit = None
-    if request.method == 'POST':
-        run_id = request.form.get('run_id', type=int)
-        run_name = request.form.get('run_name', type=str)
-        revision_commit = request.form.get('revision_commit', type=str)
-        
-        if run_id and run_name and revision_commit:  # Ensure all parameters are provided
-            try:
-                # Fetch records using inner join with the tables
-                query = text("""
-                    SELECT ms.run_id, ms.run_name, ms.revision_commit, ms.stats_name, ms.stats_value
-                    FROM Main_Stats ms
-                    INNER JOIN Runtime_Analysis_Stats ras ON ms.run_id = ras.run_id
-                    WHERE ms.run_id = :run_id
-                    AND ms.run_name = :run_name
-                    AND ms.revision_commit = :revision_commit
-                """)
-                result = session.execute(query, {'run_id': run_id, 'run_name': run_name, 'revision_commit': revision_commit})
-                all_records = result.fetchall()  # Fetch all results as a list of tuples
-                
-                # Debugging statement to check the number of records fetched
-                print(f"Number of records fetched for run_id {run_id}: {len(all_records)}")
-            except Exception as e:
-                print(f"An error occurred: {str(e)}")
-    
-    session.close()  # Ensure the session is closed
+def index():
+    results = {}  # Initialize results as an empty dictionary
 
-    # Render the HTML template with results and all records
-    return render_template_string(HTML_TEMPLATE, all_records=all_records, run_id=run_id)
+    if request.method == 'POST':
+        # Get input values from the form
+        input_text1 = request.form.get('input1')  # run_id
+        input_text2 = request.form.get('input2')  # run_name
+        input_text3 = request.form.get('input3')  # revision_commit
+        
+        # List of table models to query
+        table_models = {
+            'Geometric_Analysis_Stats_Fermi': Geometric_Analysis_Stats_Fermi,
+            'Main_Stats': Main_Stats,
+            'Mask_Simulation_Negdose': Mask_Simulation_Negdose,
+            'Mask_Simulation_Negfocus': Mask_Simulation_Negfocus,
+            # Add the rest of your models here
+        }
+
+        # Initialize session
+        session = Session()
+
+        # Loop through all models to query based on inputs
+        for table_name, model in table_models.items():
+               # Start building the query dynamically
+            query = select(model)
+
+            # Dynamically apply filters based on provided inputs
+            if input_text1:  # run_id is provided
+                query = query.where(model.run_id == input_text1)
+            if input_text2:  # run_name is provided
+                query = query.where(model.run_name == input_text2)
+            if input_text3:  # revision_commit is provided
+                query = query.where(model.revision_commit == input_text3)
+
+            # Execute the query to fetch results
+            result = session.execute(query).scalars().all()
+
+            # Store the result in the dictionary
+            results[table_name] = result
+
+        session.close()  # Close the session after queries are done
+
+    return render_template('index.html', results=results)  # Pass the results to the template
 
 if __name__ == '__main__':
-    # Run the Flask application in debug mode
     app.run(debug=True)
