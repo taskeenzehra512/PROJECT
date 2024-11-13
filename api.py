@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from sqlalchemy import create_engine, Column, String, Integer
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker 
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy import select
 
@@ -22,11 +22,11 @@ Base = declarative_base()
 
 # Define Models to Map MySQL Tables
 class Geometric_Analysis_Stats_Fermi(Base):
-    __tablename__ = 'Geometric_Analysis_Stats_Fermi'  # Name of the table in MySQL
-    id = Column(Integer, primary_key=True, autoincrement=True)  # Primary key column
+    __tablename__ = 'Geometric_Analysis_Stats_Fermi'
+    id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(100))
     stats_name = Column(String(100))
-    stats_value = Column(String(255))  # Adjust length as needed
+    stats_value = Column(String(255))
     run_name = Column(String(100))
     revision_commit = Column(String(100))
 
@@ -35,7 +35,7 @@ class Main_Stats(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(100))
     stats_name = Column(String(100))
-    stats_value = Column(String(255))  # Adjust length as needed
+    stats_value = Column(String(255))
     run_name = Column(String(100))
     revision_commit = Column(String(100))
 
@@ -44,7 +44,7 @@ class Mask_Simulation_Negdose(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(100))
     stats_name = Column(String(100))
-    stats_value = Column(String(255))  # Adjust length as needed
+    stats_value = Column(String(255))
     run_name = Column(String(100))
     revision_commit = Column(String(100))
 
@@ -53,12 +53,63 @@ class Mask_Simulation_Negfocus(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     run_id = Column(String(100))
     stats_name = Column(String(100))
-    stats_value = Column(String(255))  # Adjust length as needed
+    stats_value = Column(String(255))
     run_name = Column(String(100))
     revision_commit = Column(String(100))
 
-# Define more models for the remaining tables...
+class Mask_Simulation_Posdose(Base):
+    __tablename__ = 'Mask_Simulation_Posdose'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
 
+class Mask_Simulation_Posfocus(Base):
+    __tablename__ = 'Mask_Simulation_Posfocus'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
+
+class Mask_Simulation_f0d0(Base):
+    __tablename__ = 'Mask_Simulation_f0d0'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
+
+class Runtime_Analysis_Stats(Base):
+    __tablename__ = 'Runtime_Analysis_Stats'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
+
+class Width_of_PV_Band_by_Dose(Base):
+    __tablename__ = 'Width_of_PV_Band_by_Dose'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
+
+class Width_of_PV_Band_by_Focus(Base):
+    __tablename__ = 'Width_of_PV_Band_by_Focus'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    run_id = Column(String(100))
+    stats_name = Column(String(100))
+    stats_value = Column(String(255))
+    run_name = Column(String(100))
+    revision_commit = Column(String(100))
 @app.route('/', methods=['GET', 'POST'])
 def index():
     results = {}  # Initialize results as an empty dictionary
@@ -75,7 +126,12 @@ def index():
             'Main_Stats': Main_Stats,
             'Mask_Simulation_Negdose': Mask_Simulation_Negdose,
             'Mask_Simulation_Negfocus': Mask_Simulation_Negfocus,
-            # Add the rest of your models here
+            'Mask_Simulation_Posdose': Mask_Simulation_Posdose,
+            'Mask_Simulation_Posfocus': Mask_Simulation_Posfocus,
+            'Mask_Simulation_f0d0': Mask_Simulation_f0d0,
+            'Runtime_Analysis_Stats': Runtime_Analysis_Stats,
+            'Width_of_PV_Band_by_Dose': Width_of_PV_Band_by_Dose,
+            'Width_of_PV_Band_by_Focus': Width_of_PV_Band_by_Focus,
         }
 
         # Initialize session
