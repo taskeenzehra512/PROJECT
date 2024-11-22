@@ -8,7 +8,7 @@ from sqlalchemy import select
 app = Flask(__name__)
 
 # MySQL Database URI
-DATABASE_URI = 'mysql+pymysql://d2s:D2s_1234!@localhost/emumba_qor'
+DATABASE_URI = 'mysql+pymysql://d2s:D2s_1234!@localhost:3306/emumba_qor'
 
 # Create engine to connect to MySQL database
 engine = create_engine(DATABASE_URI, echo=True)
