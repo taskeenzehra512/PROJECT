@@ -1,16 +1,19 @@
+
 services:
   db:
-    image: mysql:5.7
+    image: mysql:8.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
+      
       MYSQL_DATABASE: emumba_qor
       MYSQL_USER: d2s
       MYSQL_PASSWORD: D2s_1234!
     ports:
-      - "3307:3306"
+      - "3307:3306"  # Use default MySQL port
     volumes:
-      - db_data:/var/lib/mysql  # Persist MySQL data
+      - /home/emumba/Documents/PROJECT/db_data:/var/lib/mysql
+ 
 
   web:
     build: .
@@ -19,12 +22,12 @@ services:
       - "5000:5000"
     environment:
       FLASK_ENV: development
-      SQLALCHEMY_DATABASE_URI: mysql+pymysql://d2s:D2s_1234!@db/emumba_qor
+      SQLALCHEMY_DATABASE_URI: mysql+pymysql://d2s:D2s_1234!@db:3306/emumba_qor
     depends_on:
       - db
     volumes:
       - .:/app  # Map the current directory to /app in the container
 
 # Define the named volume
-volumes:
-  db_data:
+#volumes:
+ # - /home/emumba/Documents/PROJECT/db_data:
