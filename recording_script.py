@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 import logging
 
 # Database connection setup
-DATABASE_URI = 'mysql+pymysql://d2s:D2s_1234!@localhost/emumba_qor'
+DATABASE_URI = 'mysql+pymysql://d2s:D2s_1234!@0.0.0.0:3307/emumba_qor'
 engine = create_engine(DATABASE_URI, echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -216,15 +216,25 @@ def reset_auto_increment():
 
     
 # Define the path for the organized stats file
-run_id = "9871"  # Change as required
-run_name = "abc"  # Set the run name
-revision_commit = "123xyz"  # Set the revision commit
-organized_stats_file = f"/home/emumba/Documents/PROJECT/rsync/9871/qor/organized_stats_{run_id}.txt"
+run_id_1= "9871"  # Change as required
+run_name_1 = "abc"  # Set the run name
+revision_commit_1 = "123xyz"  # Set the revision commit
+organized_stats_file_1 = f"/home/emumba/Documents/PROJECT/rsync/9871/qor/organized_stats_{run_id_1}.txt"
 
+run_id_2 = "9872"  # Change as required
+run_name_2 = "def"  # Set the run name
+revision_commit_2 = "54try"  # Set the revision commit
+organized_stats_file_2 = f"/home/emumba/Documents/PROJECT/rsync/9872/qor/organized_stats_{run_id_2}.txt"
+
+run_id_3 = "9873"  # Change as required
+run_name_3 = "f"  # Set the run name
+revision_commit_3 = "4try"  # Set the revision commit
+organized_stats_file_3 = f"/home/emumba/Documents/PROJECT/rsync/9873/qor/organized_stats_{run_id_3}.txt"
 
 reset_auto_increment()
 # Call the function to parse and record data
-parse_and_record_data(organized_stats_file, run_id, run_name, revision_commit)
-
+parse_and_record_data(organized_stats_file_1, run_id_1, run_name_1, revision_commit_1)
+parse_and_record_data(organized_stats_file_2, run_id_2, run_name_2, revision_commit_2)
+parse_and_record_data(organized_stats_file_3, run_id_3, run_name_3, revision_commit_3)
 # Close session
 session.close()
