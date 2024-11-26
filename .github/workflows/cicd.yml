@@ -1,59 +1,61 @@
-name: CI/CD Workflow
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
-      - master
+      - master    # Trigger the pipeline on push to the main branch
   pull_request:
     branches:
-      - master
+      - master    # Trigger the pipeline on pull requests targeting the main branch
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
+
     steps:
-      # Checkout the code from the repository
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      # Check out the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # Set up Docker to build and run the application
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      # Set up Python for running tests (Newman) and sending reports
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'  # Use the appropriate Python version
 
-      # Install Docker Compose
-      - name: Install Docker Compose
+      # Install dependencies (including Docker and Newman)
+      - name: Install dependencies
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version  # Verify installation
+          sudo apt-get update
+          sudo apt-get install -y docker.io newman
+          pip install -r requirements.txt
 
-      # Build Docker image
-      - name: Build Docker image
+      # Run the runtest.sh script to execute Newman and send the report
+      - name: Run tests and send report
         run: |
-          docker build -t my_app .
-
-      # Run tests using your existing runtest.sh script
-      - name: Run Newman tests and send email report
-        run: |
-          chmod +x ./runtest.sh  
-          ./runtest.sh           
+          chmod +x runtest.sh   # Make sure the script is executable
+          ./runtest.sh          # Run the script
 
   deploy:
+    needs: build_and_test  # Only deploy if build_and_test is successful
     runs-on: ubuntu-latest
-    needs: build
+
     steps:
-      # Deploy the application using Docker Compose
-      - name: Deploy the application
+      # Checkout code again to deploy
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Docker and deploy the application
+      - name: Deploy the app
         run: |
-          sudo docker-compose up --build
+          docker-compose up -d  # Start the Docker container in detached mode
 
   notify:
+    needs: deploy  # Only notify if deployment is successful
     runs-on: ubuntu-latest
-    needs: build
-    if: success()
-    steps:
-      # Send success email notification
-      - name: Send success email
-        run: |
-          echo "Pipeline Passed" | mail -s "CI/CD Pipeline Status" taskeen.zehra@emumba.com
 
+    steps:
+      # Send an email if the pipeline is successful
+      - name: Send email on success
+        run: |
+          echo "The CI/CD pipeline has passed successfully!" | mail -s "CI/CD Pipeline Success" taskeen.zehra@emumba@example.com
