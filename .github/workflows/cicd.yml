@@ -33,7 +33,7 @@ jobs:
     - name: Run tests
       run: |
         chmod +x runtest.sh 
-        runtest.sh
+        ./runtest.sh
         echo "Tests passed successfully!"
 
   dockerize:
