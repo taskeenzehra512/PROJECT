@@ -20,6 +20,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      # Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version  # Verify installation
+
       # Build Docker image
       - name: Build Docker image
         run: |
@@ -28,14 +35,14 @@ jobs:
       # Run tests using your existing runtest.sh script
       - name: Run Newman tests and send email report
         run: |
-          chmod +x ./runtest.sh  # Ensure the script is executable
-          ./runtest.sh           # Execute the script
+          chmod +x ./runtest.sh  
+          ./runtest.sh           
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      # Deploy the application (if needed)
+      # Deploy the application using Docker Compose
       - name: Deploy the application
         run: |
           docker-compose up -d
@@ -49,3 +56,13 @@ jobs:
       - name: Send success email
         run: |
           echo "Pipeline Passed" | mail -s "CI/CD Pipeline Status" taskeen.zehra@emumba.com
+
+  notify_failure:
+    runs-on: ubuntu-latest
+    needs: build
+    if: failure()
+    steps:
+      # Send failure email notification
+      - name: Send failure email
+        run: |
+          echo "Pipeline Failed" | mail -s "CI/CD Pipeline Status" taskeen.zehra@emumba.com
