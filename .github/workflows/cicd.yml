@@ -27,11 +27,10 @@ jobs:
       - name: Install dependencies
         run: |
           
-          
           sudo apt-get remove --purge -y containerd containerd.io
           sudo apt-get autoremove --purge -y
           
-          
+         
           curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
           sudo apt-get install -y nodejs
 
@@ -40,8 +39,14 @@ jobs:
           sudo apt-get install -y docker.io
 
           
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
+          if ! command -v docker-compose &> /dev/null
+          then
+            echo "docker-compose not found, installing..."
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          else
+            echo "docker-compose is already installed"
+          fi
 
           
           sudo npm install -g newman
@@ -66,7 +71,7 @@ jobs:
       # Set up Docker and deploy the application
       - name: Deploy the app
         run: |
-          docker-compose up -d  # Start the Docker container in detached mode
+          sudo docker-compose up --build # Start the Docker container in detached mode
 
   notify:
     needs: deploy  # Only notify if deployment is successful
