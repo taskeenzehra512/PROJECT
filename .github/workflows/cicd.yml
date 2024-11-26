@@ -35,7 +35,7 @@ jobs:
         chmod +x runtest.sh 
         ./runtest.sh
         echo "Tests passed successfully!"
-
+      working-directory: ./PROJECT
   dockerize:
     needs: build
     runs-on: ubuntu-latest
