@@ -46,7 +46,7 @@ jjobs:
       - name: Deploy the app with Docker Compose
         run: |
           sudo /usr/local/bin/docker-compose up --build -d
-t
+
       # Run the runtest.sh script to execute Newman and send the report
       - name: Run tests and send report
         run: |
