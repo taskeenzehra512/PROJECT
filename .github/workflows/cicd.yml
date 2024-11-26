@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r /home/emumba/Documents/PROJECT/requirements.txt
+        pip install -r ./PROJECT/requirements.txt
 
     # Run Unit Tests
     - name: Run tests
