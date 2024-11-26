@@ -1,0 +1,336 @@
+{
+	"info": {
+		"_postman_id": "67a4b34e-de03-4e30-a5ff-fa30d532abde",
+		"name": "QOR API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39898316"
+	},
+	"item": [
+		{
+			"name": "GET API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST 9871 data",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Test: Check if the response contains the <html> tag",
+							"pm.test(\"Response contains specific text\", function () {",
+							"    const responseBody = pm.response.text(); // Get the raw HTML response as text",
+							"    pm.expect(responseBody).to.include(\"<html\"); // Check for <html (no closing tag needed)",
+							"});",
+							"//console.log(pm.response.text());",
+							"",
+							"// Test: Check if run_id, run_name, and revision_commit match the expected values",
+							"pm.test(\"Validate run_id, run_name, and revision_commit\", function () {",
+							"    // Get input values from the request body",
+							"    const inputText1 = pm.request.body.formdata.find(item => item.key === \"input1\").value; // run_id",
+							"    const inputText2 = pm.request.body.formdata.find(item => item.key === \"input2\").value; // run_name",
+							"    const inputText3 = pm.request.body.formdata.find(item => item.key === \"input3\").value; // revision_commit",
+							"",
+							"    // Expected values",
+							"    const expectedRunId = \"9871\";",
+							"    const expectedRunName = \"9871_rn\";",
+							"    const expectedRevisionCommit = \"9871_rc\";",
+							"",
+							"    // Check if the values match",
+							"    if (inputText1 !== expectedRunId) {",
+							"        pm.expect.fail(\"Invalid run_id. Expected: \" + expectedRunId + \" but got: \" + inputText1);",
+							"    }",
+							"    if (inputText2 !== expectedRunName) {",
+							"        pm.expect.fail(\"Invalid run_name. Expected: \" + expectedRunName + \" but got: \" + inputText2);",
+							"    }",
+							"    if (inputText3 !== expectedRevisionCommit) {",
+							"        pm.expect.fail(\"Invalid revision_commit. Expected: \" + expectedRevisionCommit + \" but got: \" + inputText3);",
+							"    }",
+							"});",
+							"",
+							"// Log the response for debugging purposes",
+							"console.log(pm.response.text());",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "input1",
+							"value": "9871",
+							"type": "text"
+						},
+						{
+							"key": "input2",
+							"value": "9871_rn",
+							"type": "text"
+						},
+						{
+							"key": "input3",
+							"value": "9871_rc",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST 9872 data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Test: Check if the response contains the <html> tag",
+							"pm.test(\"Response contains specific text\", function () {",
+							"    const responseBody = pm.response.text(); // Get the raw HTML response as text",
+							"    pm.expect(responseBody).to.include(\"<html\"); // Check for <html (no closing tag needed)",
+							"});",
+							"//console.log(pm.response.text());",
+							"",
+							"// Test: Check if run_id, run_name, and revision_commit match the expected values",
+							"pm.test(\"Validate run_id, run_name, and revision_commit\", function () {",
+							"    // Get input values from the request body",
+							"    const inputText1 = pm.request.body.formdata.find(item => item.key === \"input1\").value; // run_id",
+							"    const inputText2 = pm.request.body.formdata.find(item => item.key === \"input2\").value; // run_name",
+							"    const inputText3 = pm.request.body.formdata.find(item => item.key === \"input3\").value; // revision_commit",
+							"",
+							"    // Expected values",
+							"    const expectedRunId = \"9872\";",
+							"    const expectedRunName = \"9872_rn\";",
+							"    const expectedRevisionCommit = \"9872_rc\";",
+							"",
+							"    // Check if the values match",
+							"    if (inputText1 !== expectedRunId) {",
+							"        pm.expect.fail(\"Invalid run_id. Expected: \" + expectedRunId + \" but got: \" + inputText1);",
+							"    }",
+							"    if (inputText2 !== expectedRunName) {",
+							"        pm.expect.fail(\"Invalid run_name. Expected: \" + expectedRunName + \" but got: \" + inputText2);",
+							"    }",
+							"    if (inputText3 !== expectedRevisionCommit) {",
+							"        pm.expect.fail(\"Invalid revision_commit. Expected: \" + expectedRevisionCommit + \" but got: \" + inputText3);",
+							"    }",
+							"});",
+							"",
+							"// Log the response for debugging purposes",
+							"console.log(pm.response.text());",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "input1",
+							"value": "9872",
+							"type": "text"
+						},
+						{
+							"key": "input2",
+							"value": "9872_rn",
+							"type": "text"
+						},
+						{
+							"key": "input3",
+							"value": "9872_rc",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST 9873 data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Test: Check if the response contains the <html> tag",
+							"pm.test(\"Response contains specific text\", function () {",
+							"    const responseBody = pm.response.text(); // Get the raw HTML response as text",
+							"    pm.expect(responseBody).to.include(\"<html\"); // Check for <html (no closing tag needed)",
+							"});",
+							"//console.log(pm.response.text());",
+							"",
+							"// Test: Check if run_id, run_name, and revision_commit match the expected values",
+							"pm.test(\"Validate run_id, run_name, and revision_commit\", function () {",
+							"    // Get input values from the request body",
+							"    const inputText1 = pm.request.body.formdata.find(item => item.key === \"input1\").value; // run_id",
+							"    const inputText2 = pm.request.body.formdata.find(item => item.key === \"input2\").value; // run_name",
+							"    const inputText3 = pm.request.body.formdata.find(item => item.key === \"input3\").value; // revision_commit",
+							"",
+							"    // Expected values",
+							"    const expectedRunId = \"9873\";",
+							"    const expectedRunName = \"9873_rn\";",
+							"    const expectedRevisionCommit = \"9873_rc\";",
+							"",
+							"    // Check if the values match",
+							"    if (inputText1 !== expectedRunId) {",
+							"        pm.expect.fail(\"Invalid run_id. Expected: \" + expectedRunId + \" but got: \" + inputText1);",
+							"    }",
+							"    if (inputText2 !== expectedRunName) {",
+							"        pm.expect.fail(\"Invalid run_name. Expected: \" + expectedRunName + \" but got: \" + inputText2);",
+							"    }",
+							"    if (inputText3 !== expectedRevisionCommit) {",
+							"        pm.expect.fail(\"Invalid revision_commit. Expected: \" + expectedRevisionCommit + \" but got: \" + inputText3);",
+							"    }",
+							"});",
+							"",
+							"// Log the response for debugging purposes",
+							"console.log(pm.response.text());",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "input1",
+							"value": "9873",
+							"type": "text"
+						},
+						{
+							"key": "input2",
+							"value": "9873_rn",
+							"type": "text"
+						},
+						{
+							"key": "input3",
+							"value": "9873_rc",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
