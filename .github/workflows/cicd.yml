@@ -32,7 +32,7 @@ jobs:
     # Run Unit Tests
     - name: Run tests
       run: |
-        chmod +x /home/emumba/Docuuments/PROJECT/runtest.sh  # Ensure the script is executable
+        chmod +x ./PROJECT/runtest.sh  # Ensure the script is executable
         ./PROJECT/runtest.sh
         echo "Tests passed successfully!"
 
