@@ -32,6 +32,10 @@ jobs:
         run: |
           docker build -t my_app .
 
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       # Run tests using your existing runtest.sh script
       - name: Run Newman tests and send email report
         run: |
@@ -40,7 +44,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: test
     steps:
       # Deploy the application using Docker Compose
       - name: Deploy the application
@@ -49,20 +53,10 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    needs: build
+    needs: test
     if: success()
     steps:
       # Send success email notification
       - name: Send success email
         run: |
           echo "Pipeline Passed" | mail -s "CI/CD Pipeline Status" taskeen.zehra@emumba.com
-
-  notify_failure:
-    runs-on: ubuntu-latest
-    needs: build
-    if: failure()
-    steps:
-      # Send failure email notification
-      - name: Send failure email
-        run: |
-          echo "Pipeline Failed" | mail -s "CI/CD Pipeline Status" taskeen.zehra@emumba.com
