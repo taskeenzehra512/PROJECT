@@ -32,8 +32,8 @@ jobs:
     # Run Unit Tests
     - name: Run tests
       run: |
-        chmod +x runtest.sh 
-        ./runtest.sh
+        chmod +x ../PROJECT/runtest.sh 
+        ../PROJECT/runtest.sh
         echo "Tests passed successfully!"
       working-directory: ./PROJECT
   dockerize:
