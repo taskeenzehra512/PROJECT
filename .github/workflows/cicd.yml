@@ -23,11 +23,21 @@ jobs:
         with:
           python-version: '3.10'  # Use the appropriate Python version
 
-      # Install dependencies (including Docker and Newman)
+      # Install dependencies
       - name: Install dependencies
         run: |
+          # Install Node.js (for npm)
+          curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+
+          # Install Docker
           sudo apt-get update
-          sudo apt-get install -y docker.io newman
+          sudo apt-get install -y docker.io
+
+          # Install Newman globally using npm
+          sudo npm install -g newman
+
+          # Install Python dependencies
           pip install -r requirements.txt
 
       # Run the runtest.sh script to execute Newman and send the report
