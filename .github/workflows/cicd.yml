@@ -8,51 +8,45 @@ on:
     branches:
       - master    # Trigger the pipeline on pull requests targeting the main branch
 
-jobs:
+jjobs:
   build_and_test:
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Python for running tests (Newman) and sending reports
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # Use the appropriate Python version
+          python-version: '3.10'
 
-      # Install dependencies
       - name: Install dependencies
         run: |
-          
           sudo apt-get remove --purge -y containerd containerd.io
           sudo apt-get autoremove --purge -y
-          
-         
           curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
           sudo apt-get install -y nodejs
-
-          
           sudo apt-get update
           sudo apt-get install -y docker.io
-
-          
           if ! command -v docker-compose &> /dev/null
           then
-            echo "docker-compose not found, installing..."
             sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
           else
             echo "docker-compose is already installed"
           fi
-
-          
           sudo npm install -g newman
-
-          
           pip install -r requirements.txt
+
+      - name: Verify docker-compose installation
+        run: |
+          sudo /usr/local/bin/docker-compose --version
+
+      - name: Deploy the app with Docker Compose
+        run: |
+          sudo /usr/local/bin/docker-compose up --build -d
+t
       # Run the runtest.sh script to execute Newman and send the report
       - name: Run tests and send report
         run: |
