@@ -27,15 +27,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt  
+        pip install -r PROJECT/requirements.txt  
 
     # Run Unit Tests
     - name: Run tests
       run: |
-        chmod +x PROJECT/runtest.sh 
-        .PROJECT/runtest.sh
+        chmod +x PROJECT/runtest.sh  
+        ./PROJECT/runtest.sh         
         echo "Tests passed successfully!"
-      working-directory: ./  # Ensure the working directory is the root
+      
+
   dockerize:
     needs: build
     runs-on: ubuntu-latest
@@ -48,12 +49,12 @@ jobs:
     # Build Docker Image
     - name: Build Docker Image
       run: |
-        docker build -t flask-app -f PROJECT/Dockerfile ./PROJECT
+        docker build -t flask-app -f PROJECT/Dockerfile ./PROJECT  # Correct Dockerfile path
 
     # Deploy Container
     - name: Deploy Container
       run: |
-         docker-compose -f PROJECT/docker-compose.yml up -d  # Use docker-compose to start the app and db
+         docker-compose -f PROJECT/docker-compose.yml up -d  # Use correct docker-compose path
 
   notify:
     needs: [build, dockerize]
