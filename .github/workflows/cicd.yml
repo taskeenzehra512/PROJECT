@@ -27,12 +27,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r PROJECT/requirements.txt
+        pip install -r /home/emumba/Documents/PROJECT/requirements.txt
 
     # Run Unit Tests
     - name: Run tests
       run: |
-        chmod +x PROJECT/runtest.sh  # Ensure the script is executable
+        chmod +x /home/emumba/Docuuments/PROJECT/runtest.sh  # Ensure the script is executable
         ./PROJECT/runtest.sh
         echo "Tests passed successfully!"
 
@@ -48,7 +48,7 @@ jobs:
     # Build Docker Image
     - name: Build Docker Image
       run: |
-        docker build -t flask-app -f PROJECT/Dockerfile ./PROJECT
+        docker build -t flask-app -f /home/emumba/Documents/PROJECT/Dockerfile ./PROJECT
 
     # Deploy Container
     - name: Deploy Container
