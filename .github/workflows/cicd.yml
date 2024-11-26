@@ -26,12 +26,15 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: |
-          # Install Node.js (for npm)
+             # Clean up Docker packages if necessary
+          sudo apt-get remove --purge containerd containerd.io
+          sudo apt-get autoremove --purge
+
+          # Install Node.js (16.x)
           curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
           sudo apt-get install -y nodejs
 
           # Install Docker
-          sudo apt-get update
           sudo apt-get install -y docker.io
 
           # Install Newman globally using npm
@@ -39,7 +42,6 @@ jobs:
 
           # Install Python dependencies
           pip install -r requirements.txt
-
       # Run the runtest.sh script to execute Newman and send the report
       - name: Run tests and send report
         run: |
