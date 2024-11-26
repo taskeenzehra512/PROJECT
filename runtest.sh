@@ -2,7 +2,7 @@
 
 # Run the Newman collection and generate both CLI 
 
-newman run /home/emumba/Documents/PROJECT/postman_collection.json \
+newman run ~/Documents/PROJECT/postman_collection.json \
     --reporters cli,html \
     
 
