@@ -1,0 +1,74 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Set up Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+
+    # Install dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r flask/requirements.txt
+
+    # Run Unit Tests
+    - name: Run tests
+      run: |
+        pytest tests/  # Replace with your test directory
+        echo "Tests passed successfully!"
+
+  dockerize:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Build Docker Image
+    - name: Build Docker Image
+      run: |
+        docker build -t flask-app ./flask
+
+    # Deploy Container (Optional: Adjust for your environment)
+    - name: Deploy Container
+      run: |
+        docker run -d -p 80:5000 flask-app
+
+  notify:
+    needs: [build, dockerize]
+    runs-on: ubuntu-latest
+
+    steps:
+    # Send Email Notification
+    - name: Send Email
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.example.com  # Replace with your SMTP server
+        server_port: 587
+        username: your-email@example.com
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: CI/CD Pipeline Passed
+        body: |
+          Hello,
+          The CI/CD pipeline for your Flask app has passed successfully!
+        to: recipient@example.com
