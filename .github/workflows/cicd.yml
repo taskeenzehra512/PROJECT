@@ -8,7 +8,7 @@ on:
     branches:
       - master    # Trigger the pipeline on pull requests targeting the main branch
 
-jjobs:
+jobs:
   build_and_test:
     runs-on: ubuntu-latest
 
