@@ -45,7 +45,7 @@ jobs:
       # Deploy the application using Docker Compose
       - name: Deploy the application
         run: |
-          sudo docker-compose up -build
+          sudo docker-compose up --build
 
   notify:
     runs-on: ubuntu-latest
