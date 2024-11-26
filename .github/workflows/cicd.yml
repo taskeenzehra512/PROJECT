@@ -3,10 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -27,12 +27,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r flask/requirements.txt
+        pip install -r PROJECT/requirements.txt
 
     # Run Unit Tests
     - name: Run tests
       run: |
-        pytest tests/  # Replace with your test directory
+        chmod +x PROJECT/runtest.sh  # Ensure the script is executable
+        ./PROJECT/runtest.sh
         echo "Tests passed successfully!"
 
   dockerize:
@@ -47,12 +48,12 @@ jobs:
     # Build Docker Image
     - name: Build Docker Image
       run: |
-        docker build -t flask-app ./flask
+        docker build -t flask-app -f PROJECT/Dockerfile ./PROJECT
 
-    # Deploy Container (Optional: Adjust for your environment)
+    # Deploy Container
     - name: Deploy Container
       run: |
-        docker run -d -p 80:5000 flask-app
+         docker-compose -f PROJECT/docker-compose.yml up -d  # Use docker-compose to start the app and db
 
   notify:
     needs: [build, dockerize]
@@ -63,12 +64,12 @@ jobs:
     - name: Send Email
       uses: dawidd6/action-send-mail@v3
       with:
-        server_address: smtp.example.com  # Replace with your SMTP server
+        server_address: smtp.gmail.com
         server_port: 587
-        username: your-email@example.com
-        password: ${{ secrets.SMTP_PASSWORD }}
+        username: ${{ secrets.taskeen }}
+        password: ${{ secrets.taskeen_pass }}
         subject: CI/CD Pipeline Passed
         body: |
           Hello,
           The CI/CD pipeline for your Flask app has passed successfully!
-        to: recipient@example.com
+        to: taskeen.zehra@emumba.com
