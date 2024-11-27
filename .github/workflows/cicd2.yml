@@ -25,7 +25,7 @@ jobs:
             git push origin master      # Push the changes to master
           fi
 
-  build_and_test:
+  test:
     needs: merge  # Only run build and test if the merge job is successful
     runs-on: ubuntu-latest
 
@@ -66,7 +66,7 @@ jobs:
           ./runtest.sh          # Run the tests and send the report
 
   build:
-    needs: build_and_test  # Only build if build_and_test is successful
+    needs: test  # Only build if test is successful
     runs-on: ubuntu-latest
 
     steps:
