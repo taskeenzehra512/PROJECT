@@ -94,4 +94,4 @@ jobs:
     # Send an email if the pipeline is successful
     - name: Send email on success
       run: |
-        echo "The CI/CD pipeline has passed successfully!" | mail -s "CI/CD Pipeline Success" taskeen.zehra@emumba@example.com
+        echo "The CI/CD pipeline has passed successfully!" | mail -s "CI/CD Pipeline Success" taskeen.zehra@emumba.com
