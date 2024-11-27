@@ -25,11 +25,11 @@ jobs:
         run: |
           # Ensure we're on the master branch
           git fetch origin
-          git checkout master  # Ensure we're on master
+          git checkout master  # Ensure we're on the master branch
           git pull origin master  # Pull the latest changes from master
-          git merge ${{ github.head_ref }}  # Merge the PR branch into master
+          git merge origin/${{ github.head_ref }}  # Merge the PR branch into master
           git push origin master  # Push the changes to the remote master branch
-
+          
   test:
     needs: merge  # Only run build and test if the merge job is successful
     runs-on: ubuntu-latest
