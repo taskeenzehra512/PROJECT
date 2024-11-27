@@ -342,22 +342,3 @@ The `notify` job sends an email notification to a specified email address upon s
 
 ---
 
-## How to Use
-
-### Prerequisites
-Ensure that you have the following setup for the CI/CD pipeline to work:
-
-- **GitHub repository** where your application resides.
-- **Docker** and **Docker Compose** installed on the server or runner where this pipeline will execute.
-- **Node.js** and **Newman** installed for Postman collection execution.
-
-### CI/CD Configuration
-The CI/CD pipeline is configured through GitHub Actions, specifically in the `main.yml` file located under `.github/workflows/`.
-
-### Steps for Using the Pipeline:
-1. **Push to master**: Any push to the `master` branch will trigger the pipeline.
-2. **Pull Request**: A pull request targeting the `master` branch will trigger the pipeline.
-3. **Pipeline Execution**: The pipeline will first run the build and test job, followed by deployment, and send notifications upon success.
-
----
-
