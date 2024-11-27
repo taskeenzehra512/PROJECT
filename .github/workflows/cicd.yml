@@ -83,10 +83,10 @@ jobs:
         sudo docker-compose up --build -d
 
   notify:
-  needs: deploy  # Only notify if deployment is successful
-  runs-on: ubuntu-latest
+   needs: deploy  # Only notify if deployment is successful
+   runs-on: ubuntu-latest
 
-  steps:
+   steps:
     # Install mailutils
     - name: Install mailutils
       run: sudo apt-get update && sudo apt-get install -y mailutils
