@@ -23,13 +23,12 @@ jobs:
 
       - name: Merge changes into master branch (if PR)
         run: |
-          # Ensure we're on the master branch
-          git fetch origin
-          git checkout master  # Ensure we're on the master branch
-          git pull origin master  # Pull the latest changes from master
-          git merge origin/${{ github.head_ref }}  # Merge the PR branch into master
-          git push origin master  # Push the changes to the remote master branch
-          
+          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            git checkout main  # Ensure you're on the main branch
+            git pull origin main  # Pull the latest changes from main
+            git merge ${{ github.head_ref }}  # Merge the PR branch into main
+            git push origin main  # Push the changes to the remote
+          fi
   test:
     needs: merge  # Only run build and test if the merge job is successful
     runs-on: ubuntu-latest
