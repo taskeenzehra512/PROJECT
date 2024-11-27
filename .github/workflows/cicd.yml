@@ -53,19 +53,35 @@ jobs:
           chmod +x runtest.sh   # Make sure the script is executable
           ./runtest.sh          # Run the script
 
-  deploy:
-    needs: build_and_test  # Only deploy if build_and_test is successful
-    runs-on: ubuntu-latest
+deploy:
+  needs: build_and_test  # Only deploy if build_and_test is successful
+  runs-on: ubuntu-latest
 
-    steps:
-      # Checkout code again to deploy
-      - name: Checkout code
-        uses: actions/checkout@v3
+  steps:
+    # Checkout code again to deploy
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # Set up Docker and deploy the application
-      - name: Deploy the app
-        run: |
-          sudo docker-compose up --build -d 
+    # Install Docker Compose if not available
+    - name: Install Docker Compose
+      run: |
+        if ! command -v docker-compose &> /dev/null
+        then
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+        else
+          echo "docker-compose is already installed"
+        fi
+
+    # Verify Docker Compose installation
+    - name: Verify Docker Compose
+      run: docker-compose --version
+
+    # Set up Docker and deploy the application
+    - name: Deploy the app
+      run: |
+        sudo docker-compose up --build -d
+
 
   notify:
     needs: deploy  # Only notify if deployment is successful
