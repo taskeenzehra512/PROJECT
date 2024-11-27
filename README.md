@@ -280,7 +280,7 @@ This project automates the process of running a Postman collection using **Newma
 
 **Execute the Bash Script**: The script `newman_report.sh` is used to run the Postman collection and generate the report.
 
-
+.............................................................
 CI/CD Pipeline Overview:
 This document describes the CI/CD pipeline configuration for automating the deployment process of an application. The pipeline is defined in a GitHub Actions workflow and consists of multiple stages: Build and Test, Deploy, and Notify.
 
