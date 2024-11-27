@@ -1,0 +1,133 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master    # Trigger the pipeline on push to the main branch
+  pull_request:
+    branches:
+      - master    # Trigger the pipeline on pull requests targeting the main branch
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Merge the PR branch into master
+      - name: Merge branch into master
+        run: |
+          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            git checkout master
+            git merge $GITHUB_HEAD_REF  # Merge the PR branch into master
+            git push origin master      # Push the changes to master
+          fi
+
+  build_and_test:
+    needs: merge  # Only run build and test if the merge job is successful
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get remove --purge -y containerd containerd.io
+          sudo apt-get autoremove --purge -y
+          curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          if ! command -v docker-compose &> /dev/null
+          then
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          else
+            echo "docker-compose is already installed"
+          fi
+          sudo npm install -g newman
+          pip install -r requirements.txt
+
+      - name: Verify docker-compose installation
+        run: |
+          sudo /usr/local/bin/docker-compose --version
+
+      - name: Run tests
+        run: |
+          chmod +x runtest.sh   # Make sure the script is executable
+          ./runtest.sh          # Run the tests and send the report
+
+  build:
+    needs: build_and_test  # Only build if build_and_test is successful
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Docker Compose
+      - name: Install Docker Compose
+        run: |
+          if ! command -v docker-compose &> /dev/null
+          then
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          else
+            echo "docker-compose is already installed"
+          fi
+
+      - name: Verify Docker Compose installation
+        run: docker-compose --version
+
+      - name: Build the app with Docker Compose
+        run: |
+          sudo /usr/local/bin/docker-compose up --build -d
+
+  deploy:
+    needs: build  # Only deploy if build is successful
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code again to deploy
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Docker Compose (in case not installed)
+      - name: Install Docker Compose
+        run: |
+          if ! command -v docker-compose &> /dev/null
+          then
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          else
+            echo "docker-compose is already installed"
+          fi
+
+      - name: Verify Docker Compose installation
+        run: docker-compose --version
+
+      - name: Deploy the app with Docker Compose
+        run: |
+          sudo docker-compose up --build -d
+
+  notify:
+    needs: deploy  # Only notify if deploy is successful
+    runs-on: ubuntu-latest
+
+    steps:
+      # Install mailutils
+      - name: Install mailutils
+        run: sudo apt-get update && sudo apt-get install -y mailutils
+
+      # Send an email notification on success
+      - name: Send email on success
+        run: |
+          echo "The CI/CD pipeline has passed successfully!" | mail -s "CI/CD Pipeline Success" taskeen.zehra@emumba.com
