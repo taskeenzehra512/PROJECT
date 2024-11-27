@@ -273,54 +273,91 @@ This project automates the process of running a Postman collection using **Newma
 ---
 
 
-
-## Usage
-
 ### Run the Newman Collection
 
-**Execute the Bash Script**: The script `newman_report.sh` is used to run the Postman collection and generate the report.
-
-.............................................................
+**Execute the Bash Script**: The script `runtest.sh` is used to run the Postman collection and generate the report and send the Report via Email
 
 
-heloo
-CI/CD Pipeline Overview:
-This document describes the CI/CD pipeline configuration for automating the deployment process of an application. The pipeline is defined in a GitHub Actions workflow and consists of multiple stages: Build and Test, Deploy, and Notify.
+Configure Email Settings: Ensure the Python script (send_email.py) is configured with the correct email settings such as SMTP server, recipient email address, etc.
 
-Workflow Trigger
+Trigger Email Sending: The Python script will automatically send the HTML report to the configured email address once the tests are completed.
+
+
+
+
+# CI/CD Pipeline Overview
+
+This document describes the CI/CD pipeline configuration for automating the deployment process of an application. The pipeline is defined in a **GitHub Actions** workflow and consists of multiple stages: **Build and Test**, **Deploy**, and **Notify**.
+
+---
+
+## Workflow Trigger
+
 The pipeline triggers under the following conditions:
 
-Push events on the master branch.
-Pull request events targeting the master branch.
-Jobs in the CI/CD Pipeline
+- **Push events** on the `master` branch.
+- **Pull request events** targeting the `master` branch.
 
-Build and Test:
-The build_and_test job is responsible for checking out the code, setting up the Python environment, installing dependencies, verifying the Docker Compose installation, and running tests.
+---
 
-Steps:
-Checkout code: Retrieves the code from the repository using actions/checkout.
-Set up Python: Installs Python version 3.10 using actions/setup-python.
-Install dependencies:
-Removes existing Docker and related dependencies.
-Installs nodejs (via NodeSource), docker.io, and docker-compose if not already installed.
-Installs newman globally via npm (for running Postman collections).
-Installs Python dependencies from requirements.txt using pip.
-Verify Docker Compose installation: Ensures that Docker Compose is installed correctly by checking its version.
-Deploy the app with Docker Compose: Runs docker-compose up --build -d to build and start the application in detached mode.
-Run tests and send report: Executes the runtest.sh script, which runs Newman to execute API tests and sends a report.
+## Jobs in the CI/CD Pipeline
 
-Deploy:
-The deploy job runs after the successful completion of the build_and_test job. It redeems the code, ensures Docker Compose is installed, and deploys the application.
+### 1. Build and Test
 
-Steps:
-Checkout code: Retrieves the latest version of the code for deployment.
-Install Docker Compose: Ensures Docker Compose is installed if not already present.
-Verify Docker Compose: Checks the Docker Compose version.
-Deploy the app: Runs docker-compose up --build -d to build and deploy the application.
+The `build_and_test` job is responsible for checking out the code, setting up the Python environment, installing dependencies, verifying the Docker Compose installation, and running tests.
 
-Notify:
-The notify job sends an email notification to a specified email address upon successful deployment.
+#### Steps:
+1. **Checkout code**: Retrieves the code from the repository using `actions/checkout`.
+2. **Set up Python**: Installs Python version 3.10 using `actions/setup-python`.
+3. **Install dependencies**:
+   - Removes any existing Docker and related dependencies.
+   - Installs `nodejs` (via NodeSource), `docker.io`, and `docker-compose` if not already installed.
+   - Installs `newman` globally via npm for running Postman collections.
+   - Installs Python dependencies from `requirements.txt` using `pip`.
+4. **Verify Docker Compose installation**: Ensures that Docker Compose is installed correctly by checking its version.
+5. **Deploy the app with Docker Compose**: Runs `docker-compose up --build -d` to build and start the application in detached mode.
+6. **Run tests and send report**: Executes the `runtest.sh` script, which runs Newman to execute API tests and sends a report.
 
-Steps:
-Install mailutils: Installs the mailutils package to allow sending emails.
-Send email on success: Sends an email with the subject "CI/CD Pipeline Success" and a success message to taskeen.zehra@emumba.com.
+---
+
+### 2. Deploy
+
+The `deploy` job runs after the successful completion of the `build_and_test` job. It redeems the code, ensures Docker Compose is installed, and deploys the application.
+
+#### Steps:
+1. **Checkout code**: Retrieves the latest version of the code for deployment.
+2. **Install Docker Compose**: Ensures Docker Compose is installed if not already present.
+3. **Verify Docker Compose**: Checks the Docker Compose version.
+4. **Deploy the app**: Runs `docker-compose up --build -d` to build and deploy the application.
+
+---
+
+### 3. Notify
+
+The `notify` job sends an email notification to a specified email address upon successful deployment.
+
+#### Steps:
+1. **Install mailutils**: Installs the `mailutils` package to allow sending emails.
+2. **Send email on success**: Sends an email with the subject "CI/CD Pipeline Success" and a success message to `taskeen.zehra@emumba.com`.
+
+---
+
+## How to Use
+
+### Prerequisites
+Ensure that you have the following setup for the CI/CD pipeline to work:
+
+- **GitHub repository** where your application resides.
+- **Docker** and **Docker Compose** installed on the server or runner where this pipeline will execute.
+- **Node.js** and **Newman** installed for Postman collection execution.
+
+### CI/CD Configuration
+The CI/CD pipeline is configured through GitHub Actions, specifically in the `main.yml` file located under `.github/workflows/`.
+
+### Steps for Using the Pipeline:
+1. **Push to master**: Any push to the `master` branch will trigger the pipeline.
+2. **Pull Request**: A pull request targeting the `master` branch will trigger the pipeline.
+3. **Pipeline Execution**: The pipeline will first run the build and test job, followed by deployment, and send notifications upon success.
+
+---
+
