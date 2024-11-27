@@ -24,10 +24,10 @@ jobs:
       - name: Merge changes into main branch (if PR)
         run: |
           if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-            git checkout main  # Ensure you're on the main branch
-            git pull origin main  # Pull the latest changes from main
+            git checkout master  # Ensure you're on the main branch
+            git pull origin master  # Pull the latest changes from main
             git merge ${{ github.head_ref }}  # Merge the PR branch into main
-            git push origin main  # Push the changes to the remote
+            git push origin master  # Push the changes to the remote
           fi
 
       # Add the build, test, and deploy steps below
