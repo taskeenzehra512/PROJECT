@@ -9,21 +9,26 @@ on:
       - master    # Trigger the pipeline on pull requests targeting the main branch
 
 jobs:
-  merge:
+  merge_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Merge the PR branch into master
-      - name: Merge branch into master
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Merge changes into master branch (if PR)
         run: |
-          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-            git checkout master
-            git merge $GITHUB_HEAD_REF  # Merge the PR branch into master
-            git push origin master      # Push the changes to master
-          fi
+          # Ensure we're on the master branch
+          git fetch origin
+          git checkout master  # Ensure we're on master
+          git pull origin master  # Pull the latest changes from master
+          git merge ${{ github.head_ref }}  # Merge the PR branch into master
+          git push origin master  # Push the changes to the remote master branch
 
   build_and_test:
     needs: merge  # Only run build and test if the merge job is successful
