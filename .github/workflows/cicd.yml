@@ -53,11 +53,11 @@ jobs:
           chmod +x runtest.sh   # Make sure the script is executable
           ./runtest.sh          # Run the script
 
-deploy:
-  needs: build_and_test  # Only deploy if build_and_test is successful
-  runs-on: ubuntu-latest
+  deploy:
+    needs: build_and_test  # Only deploy if build_and_test is successful
+    runs-on: ubuntu-latest
 
-  steps:
+    steps:
     # Checkout code again to deploy
     - name: Checkout code
       uses: actions/checkout@v3
@@ -81,7 +81,6 @@ deploy:
     - name: Deploy the app
       run: |
         sudo docker-compose up --build -d
-
 
   notify:
     needs: deploy  # Only notify if deployment is successful
