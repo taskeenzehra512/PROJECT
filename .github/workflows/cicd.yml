@@ -83,11 +83,15 @@ jobs:
         sudo docker-compose up --build -d
 
   notify:
-    needs: deploy  # Only notify if deployment is successful
-    runs-on: ubuntu-latest
+  needs: deploy  # Only notify if deployment is successful
+  runs-on: ubuntu-latest
 
-    steps:
-      # Send an email if the pipeline is successful
-      - name: Send email on success
-        run: |
-          echo "The CI/CD pipeline has passed successfully!" | mail -s "CI/CD Pipeline Success" taskeen.zehra@emumba@example.com
+  steps:
+    # Install mailutils
+    - name: Install mailutils
+      run: sudo apt-get update && sudo apt-get install -y mailutils
+
+    # Send an email if the pipeline is successful
+    - name: Send email on success
+      run: |
+        echo "The CI/CD pipeline has passed successfully!" | mail -s "CI/CD Pipeline Success" taskeen.zehra@emumba@example.com
