@@ -22,11 +22,19 @@ jobs:
       - name: Merge branch into master
         run: |
           if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-            git fetch origin master
-            git checkout master
-            git merge $GITHUB_HEAD_REF  # Merge the PR branch into master
-            git push origin master      # Push the changes to master
-          fi
+          git fetch origin master
+          git checkout master
+          git pull origin master
+          echo "Merging branch: $GITHUB_HEAD_REF into master"
+          git fetch origin $GITHUB_HEAD_REF:$GITHUB_HEAD_REF
+          git merge $GITHUB_HEAD_REF || {
+            echo "Merge conflict or error during merge. Aborting.";
+            git merge --abort;
+            exit 1;
+          }
+          git push origin master
+        fi
+
 
   test_b:
     needs: merge  # Only run build and test if the merge job is successful
