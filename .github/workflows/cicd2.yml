@@ -33,7 +33,7 @@ jobs:
             exit 1;
           }
           git push origin master
-        fi
+          fi
 
 
   test_b:
