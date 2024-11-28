@@ -20,6 +20,7 @@ jobs:
       - name: Merge branch into master
         run: |
           if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            git fetch origin master
             git checkout master
             git merge $GITHUB_HEAD_REF  # Merge the PR branch into master
             git push origin master      # Push the changes to master
