@@ -1,9 +1,7 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches:
-      - master    # Trigger the pipeline on push to the main branch
+  
   pull_request:
     branches:
       - master    # Trigger the pipeline on pull requests targeting the main branch
@@ -15,7 +13,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+      # Print the value of GITHUB_HEAD_REF
+      - name: Print GITHUB_HEAD_REF
+        run: |
+          echo "The GITHUB_HEAD_REF is: $GITHUB_HEAD_REF"
+          
       # Merge the PR branch into master
       - name: Merge branch into master
         run: |
